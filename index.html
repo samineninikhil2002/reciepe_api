@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe App</title>
+</head>
+<body>
+    <h1>Recipe App</h1>
+    
+    <!-- Form to add a new recipe -->
+    <form id="recipeForm">
+        <input type="text" id="title" placeholder="Recipe Title" required>
+        <input type="text" id="ingredients" placeholder="Ingredients" required>
+        <input type="text" id="instructions" placeholder="Instructions" required>
+        <button type="submit">Add Recipe</button>
+    </form>
+
+    <h2>Recipe List</h2>
+    <ul id="recipeList"></ul>
+
+    <script>
+        const apiUrl = 'http://127.0.0.1:8000/recipes'; // Backend URL
+
+        // Fetch and display recipes
+        async function fetchRecipes() {
+            const response = await fetch(apiUrl);
+            const recipes = await response.json();
+            const recipeList = document.getElementById('recipeList');
+            recipeList.innerHTML = '';  // Clear list before appending new data
+            recipes.forEach(recipe => {
+                const li = document.createElement('li');
+                li.textContent = `${recipe.title} - ${recipe.ingredients}`;
+                recipeList.appendChild(li);
+            });
+        }
+
+        // Handle form submission
+        document.getElementById('recipeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('title').value;
+            const ingredients = document.getElementById('ingredients').value;
+            const instructions = document.getElementById('instructions').value;
+
+            await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: title,
+                    ingredients: ingredients,
+                    instructions: instructions
+                })
+            });
+
+            document.getElementById('recipeForm').reset(); // Clear the form
+            fetchRecipes();  // Refresh the recipe list
+        });
+
+        // Fetch recipes when the page loads
+        fetchRecipes();
+    </script>
+</body>
+</html>
